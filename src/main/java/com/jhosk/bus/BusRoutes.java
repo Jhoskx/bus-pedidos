@@ -38,7 +38,24 @@ public class BusRoutes extends RouteBuilder {
             .log("Pedido recibido  | CorrelationID=${header.CorrelationID} | TraceID = ${header.TraceID}")
             
             .log("Contenido: ${body}")
-            .to("direct:core-legacy");
+            .circuitBreaker()
+            .faultToleranceConfiguration()
+            .requestVolumeThreshold(4)                    // Evalúa los últimos 4 pedidos
+            .failureRatio(50)                                     // Si falla el 50 % o más, el breaker se abre
+            .delay(10000)                      // Se queda abierto 10 segundos antes de volver a probar
+            .end()
+            .to("direct:core-legacy")                // La llamada protegida al Core Legacy
+            .onFallback()
+
+            .log(LoggingLevel.WARN, "Circuit Breaker: Core no disponible, respondiendo con plan B para ${header.CorrelationID}")
+                .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(503))
+                .setHeader("Content-Type", constant("application/json"))
+                .setBody(simple("{\"error\": \"Core Legacy no disponible, intente más tarde\", \"correlationId\": \"${header.CorrelationID}\"}"))
+            .end();
+
+
+
+
             
                     // DLC: buzón de devoluciones. Aquí llegan los pedidos que
         // fallaron incluso después de todos los reintentos
