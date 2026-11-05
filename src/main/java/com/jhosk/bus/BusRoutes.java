@@ -38,6 +38,7 @@ public class BusRoutes extends RouteBuilder {
             .log("Pedido recibido  | CorrelationID=${header.CorrelationID} | TraceID = ${header.TraceID}")
             
             .log("Contenido: ${body}")
+            .wireTap("direct:auditoria")
             .circuitBreaker()
             .faultToleranceConfiguration()
             .requestVolumeThreshold(4)                    // Evalúa los últimos 4 pedidos
