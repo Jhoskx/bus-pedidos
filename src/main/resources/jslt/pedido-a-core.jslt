@@ -1,0 +1,6 @@
+{
+  "NOMBRE_CLIENTE": .cliente,
+  "CODIGO_PRODUCTO": uppercase(.producto),
+  "UNIDADES": .cantidad,
+  "ORIGEN": "BUS-CAMEL"
+}

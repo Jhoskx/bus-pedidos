@@ -39,6 +39,8 @@ public class BusRoutes extends RouteBuilder {
             
             .log("Contenido: ${body}")
             .wireTap("direct:auditoria")
+            .to("jslt:jslt/pedido-a-core.jslt")
+            .log("pedido traducido para el core : ${body}")
             .circuitBreaker()
             .faultToleranceConfiguration()
             .requestVolumeThreshold(4)                    // Evalúa los últimos 4 pedidos

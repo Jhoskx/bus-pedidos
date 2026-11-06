@@ -12,6 +12,7 @@ public class CoreLegacySimuladoRoutes extends RouteBuilder {
         from("direct:core-legacy")
             .routeId("core-legacy")
             .log("Core Legacy procesando el pedido ${header.CorrelationID}")
+            .log("core legacy recibido ${body}")
             .choice()
             .when(simple("${body} contains 'FALLA'"))
             .log(LoggingLevel.WARN, "Core Legacy: ¡error simulado!")
