@@ -8,7 +8,7 @@ public class AuditoriaRoutes extends RouteBuilder {
     public  void configure ()  throws Exception {
         from("direct:auditoria")
             .routeId("auditoria")
-            .delay(3000)            // Simulamos que la auditoría es lenta (3 segundos)
-            .log("Auditoría: Pedido recibido con CorrelationID=${header.CorrelationID} registrado | contenido: ${body}");
-    }
+            .to("sql:INSERT INTO auditoria (correlation_id, trace_id, contenido) "
+                + "VALUES (:#${header.CorrelationID}, :#${header.TraceID}, :#${bodyAs(String)})")
+            .log("Auditoría: pedido ${header.CorrelationID} guardado en la base de datos");    }
 }
