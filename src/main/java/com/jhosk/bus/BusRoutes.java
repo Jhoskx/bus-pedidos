@@ -65,6 +65,9 @@ public class BusRoutes extends RouteBuilder {
         from("direct:pedidos-fallidos")
             .routeId("pedidos-fallidos")
             .log(LoggingLevel.ERROR, "DLC: el pedido ${header.CorrelationID} no se pudo entregar. Motivo: ${exception.message}")
+            // Guarda el pedido fallido en la base de datos para revisarlo después
+            .to("sql:INSERT INTO pedidos_fallidos (correlation_id, contenido, motivo) "
+                + "VALUES (:#${header.CorrelationID}, :#${bodyAs(String)}, :#${exception.message})")
             .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(503))
             .setHeader("Content-Type", constant("application/json"))
             .setBody(simple("{\"error\": \"Pedido no procesado, quedó registrado para revisión\", \"correlationId\": \"${header.CorrelationID}\"}"));
